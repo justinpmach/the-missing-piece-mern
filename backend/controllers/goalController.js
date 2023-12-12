@@ -10,6 +10,7 @@ export const getGoals = asyncHandler(async (req, res) => {
 });
 
 export const setGoal = asyncHandler(async (req, res) => {
+  console.log('REQ: ', req.body);
   if (!req.body.text) {
     res.status(400);
     throw new Error('No goal provided, please add a goal in the text field');
