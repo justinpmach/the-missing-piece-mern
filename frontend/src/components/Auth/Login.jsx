@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { login, reset } from '../../../features/auth/authSlice';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -7,25 +9,51 @@ const Login = () => {
     password: '',
   });
 
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    state => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      alert('ERROR:', message);
+    }
+    if (isSuccess || user) {
+      navigate('/');
+    }
+
+    dispatch(reset());
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
+
   const handleChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async event => {
     event.preventDefault();
-    try {
-      const response = await axios.post(
-        'http://localhost:3000/users/signIn',
-        formData
-      );
-      const token = response.data.token;
-      console.log('token:', token); // You can store the token in localStorage or context for further use
-      history.push('/nisuuuu');
-    } catch (error) {
-      console.error(error);
-    }
+
+    const userData = {
+      email: formData.email,
+      password: formData.password,
+    };
+
+    dispatch(login(userData));
   };
 
+  if (isLoading) return <div>Loading...</div>;
+  // try {
+  //   const response = await axios.post(
+  //     'http://localhost:3000/users/signIn',
+  //     formData
+  //   );
+  //   const token = response.data.token;
+  //   console.log('token:', token); // You can store the token in localStorage or context for further use
+  //   history.push('/nisuuuu');
+  // } catch (error) {
+  //   console.error(error);
+  // }
   return (
     <div className='flex justify-center items-center h-screen bg-gray-100'>
       <div className='max-w-md w-full bg-white rounded-lg shadow-md p-6'>

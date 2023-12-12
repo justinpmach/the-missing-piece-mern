@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { register, reset } from '../../../features/auth/authSlice';
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +13,13 @@ const SignUp = () => {
   });
 
   const [passwordMatch, setPasswordMatch] = useState(false);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    state => state.auth
+  );
 
   const handleChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,24 +34,47 @@ const SignUp = () => {
   }, [formData.password, formData.confirmPassword]);
 
   useEffect(() => {
-    if (typeof window !== `undefined`) {
-      window.scrollTo(0, 0);
+    if (isError) {
+      alert('ERROR:', message);
     }
-  }, []);
+    if (isSuccess || user) {
+      navigate('/');
+    }
+
+    dispatch(reset());
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
+
+  // useEffect(() => {
+  //   if (typeof window !== `undefined`) {
+  //     window.scrollTo(0, 0);
+  //   }
+  // }, []);
 
   const handleSubmit = async event => {
     event.preventDefault();
-    try {
-      const response = await axios.post(
-        'http://localhost:3000/users/signUp',
-        formData
-      );
-      const token = response.data.token;
-      console.log('token:', token); // You can store the token in localStorage or context for further use
-    } catch (error) {
-      console.error(error);
+    if (passwordMatch) {
+      const userData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+      };
+
+      dispatch(register(userData));
     }
   };
+
+  // try {
+  //   const response = await axios.post(
+  //     'http://localhost:3000/users/signUp',
+  //     formData
+  //   );
+  //   const token = response.data.token;
+  // } catch (error) {
+  //   console.error(error);
+  // }
+  // };
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className='flex justify-center items-center h-screen bg-gray-100'>

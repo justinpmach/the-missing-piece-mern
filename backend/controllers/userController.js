@@ -5,16 +5,19 @@ import asyncHandler from 'express-async-handler';
 import User from '../models/userModel.js';
 
 export const signUp = asyncHandler(async (req, res) => {
-  const { email, password, confirmPassword, firstName, lastName } = req.body;
+  const { email, password, firstName, lastName } = req.body;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     res.status(400).json({ message: 'User already exists' });
   }
 
-  if (password !== confirmPassword) {
-    res.status(400).json({ message: `Passwords don't match` });
+  if (!firstName || !lastName || !email || !password) {
+    res.status(400).json({ message: `Please complete all field` });
   }
+  // if (password !== confirmPassword) {
+  //   res.status(400).json({ message: `Passwords don't match` });
+  // }
 
   // hash password
   const salt = await bcrypt.genSalt(12);
@@ -28,9 +31,10 @@ export const signUp = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    res.json({
+    res.status(201).json({
       _id: user.id,
-      name: `${user.firstName} ${user.lastName}`,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       token: generateToken(user._id),
     });
@@ -45,7 +49,7 @@ export const signUp = asyncHandler(async (req, res) => {
   // );
 });
 
-export const signIn = asyncHandler(async (req, res) => {
+export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const existingUser = await User.findOne({ email });
 
@@ -65,7 +69,8 @@ export const signIn = asyncHandler(async (req, res) => {
   if (existingUser && isPasswordCorrect) {
     res.json({
       _id: existingUser.id,
-      name: `${existingUser.firstName} ${existingUser.lastName}`,
+      firstName: existingUser.firstName,
+      lastName: existingUser.lastName,
       email: existingUser.email,
       token: generateToken(existingUser._id),
     });
@@ -81,13 +86,7 @@ export const signIn = asyncHandler(async (req, res) => {
 });
 
 export const getUsers = asyncHandler(async (req, res) => {
-  const { _id, firstName, lastName, email } = await User.findById(req.user._id);
-
-  res.status(200).json({
-    id: _id,
-    name: `${firstName} ${lastName}`,
-    email,
-  });
+  res.status(200).json(req.user);
 });
 
 // Generate JWT
