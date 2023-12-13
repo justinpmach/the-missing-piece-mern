@@ -14,7 +14,7 @@ function Header() {
   };
 
   return (
-    <header className='flex justify-between items-center py-5 border-b border-black mb-10'>
+    <header className='absolute top-0 w-full flex justify-between items-center py-5 border-b border-black'>
       <div className=''>
         <Link to='/'>The Missing Piece</Link>
       </div>

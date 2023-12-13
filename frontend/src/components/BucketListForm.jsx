@@ -15,7 +15,7 @@ function BucketListForm() {
   };
 
   return (
-    <div className='max-w-md w-full bg-white rounded-lg shadow-md p-6'>
+    <div className='max-w-md w-full rounded-lg shadow-md p-6 bg-gradient-to-l from-gray-300/10 via-blue-300/20 to-purple-200/10'>
       <form id='bucket-list-form' onSubmit={handleSubmit}>
         <div className=''>
           <label
